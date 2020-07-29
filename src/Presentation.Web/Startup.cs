@@ -60,7 +60,6 @@ namespace Presentation.Web
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddHttpContextAccessor();
 
             //services.AddServerSideBlazor().AddHubOptions((o) =>
             //{
