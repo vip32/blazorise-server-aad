@@ -1,4 +1,5 @@
-﻿@inject IHttpContextAccessor ContextAccessor
+﻿@*@inject IHttpContextAccessor ContextAccessor*@
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @*@inject ITokenAcquisition tokenAcquisition*@
 @page "/"
 <Heading Size="HeadingSize.Is1" Margin="Margin.Is3.FromBottom">Blazorise</Heading>
@@ -30,48 +31,65 @@
     <strong> Demo application for</strong>: Blazorise @($"v{typeof( Blazorise.BaseComponent ).Assembly.GetName().Version.ToString( 3 )}")
 </Paragraph>
 
-<ul>
-    <li>
-        ====================== HTTP =============================================
-    </li>
-    <li>
-        user: @ContextAccessor.HttpContext.User.Identity.Name
-    </li>
-    <li>
-        isAuthenticated: @ContextAccessor.HttpContext.User.Identity.IsAuthenticated
-    </li>
-    <li>
-        Role: Editor=@ContextAccessor.HttpContext.User.IsInRole("Editor")<br />
-        Role: Administrator=@ContextAccessor.HttpContext.User.IsInRole("Administrator")
-    </li>
-    @*<li>
-        <AuthorizeView Roles="Editor">
-            https://docs.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-3.1#authorization
-            Role: You can only see this if you're a Editor.
-        </AuthorizeView>
-        <AuthorizeView Roles="Administrator">
-            Role: You can only see this if you're a Administrator.
-        </AuthorizeView>
-    </li>*@
-    <li>
-        Token: @token
-    </li>
-    <li>
-        ====================== CLAIMS =============================================
-    </li>
-    @foreach (var claim in ContextAccessor.HttpContext.User.Claims.OrderBy(c => c.Type))
-    {
-        <li>
-            @claim.Type : @claim.Value
-        </li>
-    }
-</ul>
+<AuthorizeView> @*https://docs.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-3.1#authorization*@
+    <Authorized>
+        Hello, @context.User.Identity.Name!
+        <a href="MicrosoftIdentity/Account/SignOut">Log out</a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="MicrosoftIdentity/Account/SignIn">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+<p>@_authMessage [role: @_role]</p>
+
+<AuthorizeView Roles="Administrator">
+    <p>You can only see this if you're an administrator.</p>
+</AuthorizeView>
+<AuthorizeView Roles="Editor">
+    <p>You can only see this if you're an editor.</p>
+</AuthorizeView>
+
+@if (_claims.Count() > 0)
+{
+    <ul>
+        @foreach (var claim in _claims)
+        {
+            <li>@claim.Type: @claim.Value</li>
+        }
+    </ul>
+}
 
 @code {
-    private string token;
+    private string _role;
+    private string _authMessage;
+    private string _surnameMessage;
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
 
     protected override async Task OnInitializedAsync()
     {
-        token = string.Empty; //await tokenAcquisition.GetAccessTokenForUserAsync(new[] { "User.Read" });
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            _authMessage = $"{user.Identity.Name} is authenticated.";
+            _claims = user.Claims;
+            _surnameMessage =
+                $"Surname: {user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value}";
+
+            if (user.IsInRole("Administrator"))
+            {
+                _role = "Administrator";
+            }
+            if (user.IsInRole("Editor"))
+            {
+                _role = "Editor";
+            }
+        }
+        else
+        {
+            _authMessage = "The user is NOT authenticated.";
+        }
     }
 }

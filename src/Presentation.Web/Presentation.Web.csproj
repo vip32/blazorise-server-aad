@@ -5,6 +5,7 @@
     <AssemblyName>Presentation.Web</AssemblyName>
     <RootNamespace>Presentation.Web</RootNamespace>
     <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
+    <UserSecretsId>1de7723e-d5f7-4ab8-841e-127bd4e4ef76</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
