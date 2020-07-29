@@ -1,7 +1,7 @@
-﻿@*@inject IHttpContextAccessor ContextAccessor*@
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@*@inject ITokenAcquisition tokenAcquisition*@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
 @page "/"
+@attribute [Authorize(Roles = "Administrator, Editor")]
+
 <Heading Size="HeadingSize.Is1" Margin="Margin.Is3.FromBottom">Blazorise</Heading>
 
 <Paragraph>
