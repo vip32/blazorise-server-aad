@@ -40,5 +40,5 @@
         }
     ],
 ```
-- Enterprise application, assign Role
+- Enterprise application, add User + assing Role
 - Application, role available as claim (See Pages\Dashboard.razor)
